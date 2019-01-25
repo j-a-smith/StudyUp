@@ -12,3 +12,4 @@ local.properties
 build/
 target/
 .classpath
+temp.txt
