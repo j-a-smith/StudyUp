@@ -76,4 +76,28 @@ class EventServiceImplTest {
 		  });
 	}
 	
+	/* Author: Maung Naing */ 
+	@Test // Expecting Failure
+	void testUpdateEvent_InvalidName_badCase() throws StudyUpException { 
+		int eventID = 1;
+		eventServiceImpl.updateEventName(eventID, "123456789123456789123"); // 21 Character Name
+		assertEquals("123456789123456789123", DataStorage.eventData.get(eventID).getName());
+	}
+
+	@Test // Expecting Success, but receive failure
+	void testUpdateEvent_GoodInput_goodCase() throws StudyUpException {
+		int eventID = 1;
+		String emptyStr = ""; //Empty string is not greater than 20 characters, it's less than it, but program throws error.
+		eventServiceImpl.updateEventName(eventID, emptyStr);
+		assertEquals("", DataStorage.eventData.get(eventID).getName());
+	}
+
+	@Test // Should expect to receive one active event with one student with his correct name.
+	void testGetActiveEvents() {
+		int eventID = 1;
+		eventServiceImpl.getActiveEvents();
+		assertEquals("John", DataStorage.eventData.get(eventID).getStudents().get(0).getFirstName());
+	}
 }
+
+
