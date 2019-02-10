@@ -77,14 +77,14 @@ class EventServiceImplTest {
 	}
 	
 	/* Author: Maung Naing */ 
-	@Test // Expecting Failure
+	@Test // Expecting this test case to pass, because program should throw error.
 	void testUpdateEvent_InvalidName_badCase() throws StudyUpException { 
 		int eventID = 1;
 		eventServiceImpl.updateEventName(eventID, "123456789123456789123"); // 21 Character Name
 		assertEquals("123456789123456789123", DataStorage.eventData.get(eventID).getName());
 	}
 
-	@Test // Expecting Success, but receive failure
+	@Test // Expecting Success on test case, but receive failure (BUG)
 	void testUpdateEvent_GoodInput_goodCase() throws StudyUpException {
 		int eventID = 1;
 		String emptyStr = ""; //Empty string is not greater than 20 characters, it's less than it, but program throws error.
@@ -92,12 +92,49 @@ class EventServiceImplTest {
 		assertEquals("", DataStorage.eventData.get(eventID).getName());
 	}
 
-	@Test // Should expect to receive one active event with one student with his correct name.
-	void testGetActiveEvents() {
+	@Test // Get the Active Events and there should be only one! Pass
+	void testGetActiveEvents_Good() {
 		int eventID = 1;
-		eventServiceImpl.getActiveEvents();
-		assertEquals("John", DataStorage.eventData.get(eventID).getStudents().get(0).getFirstName());
+		List<Event> activeEvents = eventServiceImpl.getActiveEvents();
+		assertEquals(1, activeEvents.size()); //
+	}
+
+	@Test // Create a new student and a new event with old date. This passes when it should fail because I put the new event way in the past.
+	void  testGetActiveEvents_Bad() {
+		//Create Student2
+		Student student = new Student();
+		student.setFirstName("Test");
+		student.setLastName("Two");
+		student.setEmail("TestTwo@email.com");
+		student.setId(2);
+		
+		//Create Event2 that has an old date
+		Event event = new Event();
+		Date d1 = new Date(2000, 11, 21);  // I might be not using this properly, need to check w/ others
+		event.setEventID(2);
+		event.setDate(d1);
+		event.setName("Event 2");
+
+		Location location = new Location(-100, 100);
+		event.setLocation(location);
+
+		List<Student> eventStudents = new ArrayList<>();
+		eventStudents.add(student);
+		event.setStudents(eventStudents);
+
+		DataStorage.eventData.put(event.getEventID(), event); // Add another event
+
+		List<Event> currentEvents = eventServiceImpl.getActiveEvents();
+		assertEquals(2, currentEvents.size());
+	}
+
+	@Test // This test case should pass, creates an old event and checks for it in the past events.
+	void testGetPastEvents_Good(){
+		int eventID = 1;
+		Date d1 = new Date(1990,1,1);
+
+		DataStorage.eventData.get(eventID).setDate(d1);
+		List<Event> pastEvents = eventServiceImpl.getPastEvents();
+		assertEquals(1, pastEvents.size());
 	}
 }
-
-
