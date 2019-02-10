@@ -110,9 +110,11 @@ class EventServiceImplTest {
 		
 		//Create Event2 that has an old date
 		Event event = new Event();
-		Date d1 = new Date(2000, 11, 21);  // I might be not using this properly, need to check w/ others
+		Date d1 = new Date();
+		int d2 = (d1.getDate() - 1000); // Creates an old date, but the getActiveEvents doesn't work as intended.
+		Date d3 = new Date(d2);
 		event.setEventID(2);
-		event.setDate(d1);
+		event.setDate(d3);
 		event.setName("Event 2");
 
 		Location location = new Location(-100, 100);
@@ -131,9 +133,11 @@ class EventServiceImplTest {
 	@Test // This test case should pass, creates an old event and checks for it in the past events.
 	void testGetPastEvents_Good(){
 		int eventID = 1;
-		Date d1 = new Date(1990,1,1);
+		Date d1 = new Date();
+		int d2 = (d1.getDate() - 1000);  // These series of steps creates an old date.
+		Date d3 = new Date(d2);
 
-		DataStorage.eventData.get(eventID).setDate(d1);
+		DataStorage.eventData.get(eventID).setDate(d3);
 		List<Event> pastEvents = eventServiceImpl.getPastEvents();
 		assertEquals(1, pastEvents.size());
 	}
