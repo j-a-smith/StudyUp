@@ -197,6 +197,30 @@ class EventServiceImplTest {
 		  });
 	}
 	
+	@Test
+	void testAddStudentToEvent_NonexistentEvent() throws StudyUpException {
+		int badEventID = 2;
+		Student newStudent = generateTestStudent(2);
+		Assertions.assertThrows(StudyUpException.class, () -> {
+			eventServiceImpl.addStudentToEvent(newStudent, badEventID);
+		  });
+	}
+	
+	@Test
+	void testAddStudentToEvent_FirstStudent() throws StudyUpException {
+		int newEventID = 2;
+		Event newEvent = new Event();
+		newEvent.setEventID(newEventID);
+		newEvent.setDate(new Date());
+		newEvent.setLocation(new Location(100, -100));
+		DataStorage.eventData.put(newEventID, newEvent);
+		
+		Student newStudent = generateTestStudent(2);
+		Event returnEvent = eventServiceImpl.addStudentToEvent(newStudent, newEventID);
+		List<Student> studentList = returnEvent.getStudents();
+		assertEquals(1, studentList.size());
+	}
+	
 	@Test	// Deletes existing event
 	void testDeleteEvent_ExistingEvent() {
 		int eventID = 1;
