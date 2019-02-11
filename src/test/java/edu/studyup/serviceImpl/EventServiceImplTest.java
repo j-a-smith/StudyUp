@@ -20,7 +20,19 @@ import edu.studyup.entity.Student;
 import edu.studyup.util.DataStorage;
 import edu.studyup.util.StudyUpException;
 
+import java.time.Instant;
+
 class EventServiceImplTest {
+	
+	Student generateTestStudent(int ID) {
+		String IDstring = Integer.toString(ID);
+		Student testStudent = new Student();
+		testStudent.setFirstName("first" + IDstring);
+		testStudent.setLastName("last" + IDstring);
+		testStudent.setEmail("test" + IDstring + "@email.com");
+		testStudent.setId(ID);
+		return testStudent;
+	}
 
 	EventServiceImpl eventServiceImpl;
 
@@ -140,5 +152,59 @@ class EventServiceImplTest {
 		DataStorage.eventData.get(eventID).setDate(d3);
 		List<Event> pastEvents = eventServiceImpl.getPastEvents();
 		assertEquals(1, pastEvents.size());
+	}
+	
+	/* Author: Jacob Smith */
+	@Test	// Sets event date to a future date. Should return empty list.
+	void testGetPastEvents_FutureEvent() {
+		int eventID = 1;
+		long currentTime = Instant.now().toEpochMilli();
+		long oneWeekOffset = 604800000;
+		long futureTime = currentTime + oneWeekOffset;
+		Date futureDate = new Date(futureTime);
+		
+		DataStorage.eventData.get(eventID).setDate(futureDate);
+		List<Event> pastEvents = eventServiceImpl.getPastEvents();
+		assertEquals(0, pastEvents.size());
+	}
+	
+	@Test	// Adds one student to event (total number of students: 2).
+	void testAddStudentToEvent_Good() throws StudyUpException {
+		int eventID = 1;
+		
+		Student newStudent = new Student();
+		newStudent.setFirstName("TestFirst");
+		newStudent.setLastName("TestLast");
+		newStudent.setEmail("Test@email.com");
+		newStudent.setId(2);
+		
+		Event updatedEvent = eventServiceImpl.addStudentToEvent(newStudent, eventID);
+		List<Student> associatedStudents = updatedEvent.getStudents();
+		assertEquals(2, associatedStudents.size());
+	}
+	
+	@Test	// Adds 2 students to event (total number of students: 3). Violates event constraint.
+	void testAddStudentToEvent_Bad() throws StudyUpException {
+		int eventID = 1;
+		Student testStudent1 = generateTestStudent(2);
+		Student testStudent2 = generateTestStudent(3);
+		eventServiceImpl.addStudentToEvent(testStudent1, eventID);
+		Assertions.assertThrows(StudyUpException.class, () -> {
+			eventServiceImpl.addStudentToEvent(testStudent2, eventID);
+		  });
+	}
+	
+	@Test	// Deletes existing event
+	void testDeleteEvent_ExistingEvent() {
+		int eventID = 1;
+		Event deletedEvent = eventServiceImpl.deleteEvent(eventID);
+		assertEquals(eventID, deletedEvent.getEventID());
+	}
+	
+	@Test	// Attempts to delete a nonexistent event
+	void testDeleteEvent_NonexistentEvent() {
+		int fakeEventID = 2;
+		Event deletedEvent = eventServiceImpl.deleteEvent(fakeEventID);
+		Assertions.assertNull(deletedEvent);
 	}
 }
