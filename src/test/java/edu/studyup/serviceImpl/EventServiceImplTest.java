@@ -97,13 +97,15 @@ class EventServiceImplTest {
 		});
 	}
 
-	@Test // This assertion is thrown, but it shouldn't because it should allow 20 characters, hence the test case passses (BUG)
+	@Test // This test case tries to update the event name to 20 characters which should work, but it failed and an exception is thrown (BUG)
 	void testUpdateEvent_GoodInput_goodCase() throws StudyUpException {
 		int eventID = 1;
 		String emptyStr = "12345678912345678912"; //20 Characters Exactly but program throws error when it shouldn't
-		Assertions.assertThrows(StudyUpException.class, () -> {
+		try {
 			eventServiceImpl.updateEventName(eventID, emptyStr);
-		});
+		} catch (StudyUpException e) {
+			fail("Doesn't allow 20 characters, when it says it should");
+		}
 	}
 
 	@Test // Get the Active Events and there should be only one! Pass #3
