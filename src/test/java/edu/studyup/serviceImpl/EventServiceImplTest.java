@@ -77,22 +77,21 @@ class EventServiceImplTest {
 	}
 	
 	/* Author: Maung Naing */ 
-	@Test // Expecting this test case to pass, because program should throw error. #1
+	@Test // Expecting this assertion to be thrown. #1
 	void testUpdateEvent_InvalidName_badCase() throws StudyUpException { 
 		int eventID = 1;
-		eventServiceImpl.updateEventName(eventID, "123456789123456789123"); // 21 Character Name
-		assertEquals("123456789123456789123", DataStorage.eventData.get(eventID).getName());
+		Assertions.assertThrows(StudyUpException.class, () -> {
+			eventServiceImpl.updateEventName(eventID, "123456789123456789123"); // 21 Character Name
+		});
 	}
 
-	@Test // This should break the program, but the test case passes (BUG) #2
+	@Test // This assertion is thrown, but it shouldn't because it should allow 20 characters, hence the test case passses (BUG)
 	void testUpdateEvent_GoodInput_goodCase() throws StudyUpException {
 		int eventID = 1;
-		String emptyStr = "11111111111111111111"; //20 Characters Exactly but program throws error.
-		//eventServiceImpl.updateEventName(eventID, emptyStr);
+		String emptyStr = "12345678912345678912"; //20 Characters Exactly but program throws error when it shouldn't
 		Assertions.assertThrows(StudyUpException.class, () -> {
 			eventServiceImpl.updateEventName(eventID, emptyStr);
-		  });
-		//assertEquals("11111111111111111111", DataStorage.eventData.get(eventID).getName());
+		});
 	}
 
 	@Test // Get the Active Events and there should be only one! Pass #3
