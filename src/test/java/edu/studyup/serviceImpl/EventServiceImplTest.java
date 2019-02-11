@@ -77,22 +77,25 @@ class EventServiceImplTest {
 	}
 	
 	/* Author: Maung Naing */ 
-	@Test // Expecting this test case to pass, because program should throw error.
+	@Test // Expecting this test case to pass, because program should throw error. #1
 	void testUpdateEvent_InvalidName_badCase() throws StudyUpException { 
 		int eventID = 1;
 		eventServiceImpl.updateEventName(eventID, "123456789123456789123"); // 21 Character Name
 		assertEquals("123456789123456789123", DataStorage.eventData.get(eventID).getName());
 	}
 
-	@Test // Expecting Success on test case, but receive failure (BUG)
+	@Test // This should break the program, but the test case passes (BUG) #2
 	void testUpdateEvent_GoodInput_goodCase() throws StudyUpException {
 		int eventID = 1;
-		String emptyStr = ""; //Empty string is not greater than 20 characters, it's less than it, but program throws error.
-		eventServiceImpl.updateEventName(eventID, emptyStr);
-		assertEquals("", DataStorage.eventData.get(eventID).getName());
+		String emptyStr = "11111111111111111111"; //20 Characters Exactly but program throws error.
+		//eventServiceImpl.updateEventName(eventID, emptyStr);
+		Assertions.assertThrows(StudyUpException.class, () -> {
+			eventServiceImpl.updateEventName(eventID, emptyStr);
+		  });
+		//assertEquals("11111111111111111111", DataStorage.eventData.get(eventID).getName());
 	}
 
-	@Test // Get the Active Events and there should be only one! Pass
+	@Test // Get the Active Events and there should be only one! Pass #3
 	void testGetActiveEvents_Good() {
 		int eventID = 1;
 		List<Event> activeEvents = eventServiceImpl.getActiveEvents();
@@ -100,6 +103,7 @@ class EventServiceImplTest {
 	}
 
 	@Test // Create a new student and a new event with old date. This passes when it should fail because I put the new event way in the past.
+	// (BUG) #4
 	void  testGetActiveEvents_Bad() {
 		//Create Student2
 		Student student = new Student();
@@ -130,7 +134,7 @@ class EventServiceImplTest {
 		assertEquals(2, currentEvents.size());
 	}
 
-	@Test // This test case should pass, creates an old event and checks for it in the past events.
+	@Test // This test case should pass, creates an old event and checks for it in the past events. #5
 	void testGetPastEvents_Good(){
 		int eventID = 1;
 		Date d1 = new Date();
