@@ -115,7 +115,7 @@ class EventServiceImplTest {
 		assertEquals(1, activeEvents.size()); //
 	}
 
-	@Test // Create a new student and a new event with old date. This passes when it should fail because I put the new event way in the past.
+	@Test // Create a new student and a new event with old date. This should only return one active event, but the assertion fails and test fails.
 	// (BUG) #4
 	void  testGetActiveEvents_Bad() {
 		//Create Student2
@@ -144,7 +144,7 @@ class EventServiceImplTest {
 		DataStorage.eventData.put(event.getEventID(), event); // Add another event
 
 		List<Event> currentEvents = eventServiceImpl.getActiveEvents();
-		assertEquals(2, currentEvents.size());
+		assertEquals(1, currentEvents.size()); // Active Event should be only one!
 	}
 
 	@Test // This test case should pass, creates an old event and checks for it in the past events. #5
