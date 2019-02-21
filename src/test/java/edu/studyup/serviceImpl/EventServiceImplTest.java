@@ -2,9 +2,13 @@ package edu.studyup.serviceImpl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Calendar; // Not Deprecated
 import java.util.List;
+
+import java.text.SimpleDateFormat; // For Formatting the Date
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -127,11 +131,17 @@ class EventServiceImplTest {
 		
 		//Create Event2 that has an old date
 		Event event = new Event();
-		Date d1 = new Date();
-		int d2 = (d1.getDate() - 1000); // Creates an old date, but the getActiveEvents doesn't work as intended.
-		Date d3 = new Date(d2);
+		
+		//Date d1 = new Date();
+		//long d2 = (d1.getDate() - 1000); // Creates an old date, but the getActiveEvents doesn't work as intended.
+		//Date d3 = new Date(d2);
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, -10000); // Create an old date
+		new SimpleDateFormat("yyyy-MM-dd"); // Sets the date format to this
+		
 		event.setEventID(2);
-		event.setDate(d3);
+		event.setDate(cal.getTime()); // Gets the date and sets the date.
 		event.setName("Event 2");
 
 		Location location = new Location(-100, 100);
@@ -150,11 +160,15 @@ class EventServiceImplTest {
 	@Test // This test case should pass, creates an old event and checks for it in the past events. #5
 	void testGetPastEvents_Good(){
 		int eventID = 1;
-		Date d1 = new Date();
-		int d2 = (d1.getDate() - 1000);  // These series of steps creates an old date.
-		Date d3 = new Date(d2);
+		//Date d1 = new Date();
+		//long d2 = (d1.getDate() - 1000);  // These series of steps creates an old date.
+		//Date d3 = new Date(d2);
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, -10000); // Create an old date
+		new SimpleDateFormat("yyyy-MM-dd"); // Sets the date format to this
 
-		DataStorage.eventData.get(eventID).setDate(d3);
+		DataStorage.eventData.get(eventID).setDate(cal.getTime());
 		List<Event> pastEvents = eventServiceImpl.getPastEvents();
 		assertEquals(1, pastEvents.size());
 	}
