@@ -34,8 +34,8 @@ public class EventServiceImpl implements EventService {
 		Map<Integer, Event> eventData = DataStorage.getEventData();
 		List<Event> activeEvents = new ArrayList<>();
 		
-		for (Integer key : eventData.keySet()) {
-			Event ithEvent= eventData.get(key);
+		for (Map.Entry<Integer, Event> entry : eventData.entrySet()) {
+			Event ithEvent = entry.getValue();
 			activeEvents.add(ithEvent);
 		}
 		return activeEvents;
