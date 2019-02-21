@@ -69,19 +69,19 @@ class EventServiceImplTest {
 		eventStudents.add(student);
 		event.setStudents(eventStudents);
 		
-		DataStorage.eventData.put(event.getEventID(), event);
+		DataStorage.getEventData().put(event.getEventID(), event);
 	}
 
 	@AfterEach
 	void tearDown() throws Exception {
-		DataStorage.eventData.clear();
+		DataStorage.getEventData().clear();
 	}
 
 	@Test
 	void testUpdateEventName_GoodCase() throws StudyUpException {
 		int eventID = 1;
 		eventServiceImpl.updateEventName(eventID, "Renamed Event 1");
-		assertEquals("Renamed Event 1", DataStorage.eventData.get(eventID).getName());
+		assertEquals("Renamed Event 1", DataStorage.getEventData().get(eventID).getName());
 	}
 	
 	@Test
@@ -151,7 +151,7 @@ class EventServiceImplTest {
 		eventStudents.add(student);
 		event.setStudents(eventStudents);
 
-		DataStorage.eventData.put(event.getEventID(), event); // Add another event
+		DataStorage.getEventData().put(event.getEventID(), event); // Add another event
 
 		List<Event> currentEvents = eventServiceImpl.getActiveEvents();
 		assertEquals(1, currentEvents.size()); // Active Event should be only one!
@@ -168,7 +168,7 @@ class EventServiceImplTest {
 		cal.add(Calendar.DATE, -10000); // Create an old date
 		new SimpleDateFormat("yyyy-MM-dd"); // Sets the date format to this
 
-		DataStorage.eventData.get(eventID).setDate(cal.getTime());
+		DataStorage.getEventData().get(eventID).setDate(cal.getTime());
 		List<Event> pastEvents = eventServiceImpl.getPastEvents();
 		assertEquals(1, pastEvents.size());
 	}
@@ -182,7 +182,7 @@ class EventServiceImplTest {
 		long futureTime = currentTime + oneWeekOffset;
 		Date futureDate = new Date(futureTime);
 		
-		DataStorage.eventData.get(eventID).setDate(futureDate);
+		DataStorage.getEventData().get(eventID).setDate(futureDate);
 		List<Event> pastEvents = eventServiceImpl.getPastEvents();
 		assertEquals(0, pastEvents.size());
 	}
@@ -229,7 +229,7 @@ class EventServiceImplTest {
 		newEvent.setEventID(newEventID);
 		newEvent.setDate(new Date());
 		newEvent.setLocation(new Location(100, -100));
-		DataStorage.eventData.put(newEventID, newEvent);
+		DataStorage.getEventData().put(newEventID, newEvent);
 		
 		Student newStudent = generateTestStudent(2);
 		Event returnEvent = eventServiceImpl.addStudentToEvent(newStudent, newEventID);
