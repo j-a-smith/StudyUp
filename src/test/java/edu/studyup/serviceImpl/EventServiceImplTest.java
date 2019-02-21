@@ -2,9 +2,13 @@ package edu.studyup.serviceImpl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Calendar; // Not Deprecated
 import java.util.List;
+
+import java.text.SimpleDateFormat; // For Formatting the Date
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -65,19 +69,19 @@ class EventServiceImplTest {
 		eventStudents.add(student);
 		event.setStudents(eventStudents);
 		
-		DataStorage.eventData.put(event.getEventID(), event);
+		DataStorage.getEventData().put(event.getEventID(), event);
 	}
 
 	@AfterEach
 	void tearDown() throws Exception {
-		DataStorage.eventData.clear();
+		DataStorage.getEventData().clear();
 	}
 
 	@Test
 	void testUpdateEventName_GoodCase() throws StudyUpException {
 		int eventID = 1;
 		eventServiceImpl.updateEventName(eventID, "Renamed Event 1");
-		assertEquals("Renamed Event 1", DataStorage.eventData.get(eventID).getName());
+		assertEquals("Renamed Event 1", DataStorage.getEventData().get(eventID).getName());
 	}
 	
 	@Test
@@ -97,13 +101,15 @@ class EventServiceImplTest {
 		});
 	}
 
-	@Test // This assertion is thrown, but it shouldn't because it should allow 20 characters, hence the test case passses (BUG)
+	@Test // This test case tries to update the event name to 20 characters which should work, but it failed and an exception is thrown (BUG)
 	void testUpdateEvent_GoodInput_goodCase() throws StudyUpException {
 		int eventID = 1;
 		String emptyStr = "12345678912345678912"; //20 Characters Exactly but program throws error when it shouldn't
-		Assertions.assertThrows(StudyUpException.class, () -> {
+		try {
 			eventServiceImpl.updateEventName(eventID, emptyStr);
-		});
+		} catch (StudyUpException e) {
+			fail("Doesn't allow 20 characters, when it says it should");
+		}
 	}
 
 	@Test // Get the Active Events and there should be only one! Pass #3
@@ -113,7 +119,7 @@ class EventServiceImplTest {
 		assertEquals(1, activeEvents.size()); //
 	}
 
-	@Test // Create a new student and a new event with old date. This passes when it should fail because I put the new event way in the past.
+	@Test // Create a new student and a new event with old date. This should only return one active event, but the assertion fails and test fails.
 	// (BUG) #4
 	void  testGetActiveEvents_Bad() {
 		//Create Student2
@@ -125,11 +131,17 @@ class EventServiceImplTest {
 		
 		//Create Event2 that has an old date
 		Event event = new Event();
-		Date d1 = new Date();
-		int d2 = (d1.getDate() - 1000); // Creates an old date, but the getActiveEvents doesn't work as intended.
-		Date d3 = new Date(d2);
+		
+		//Date d1 = new Date();
+		//long d2 = (d1.getDate() - 1000); // Creates an old date, but the getActiveEvents doesn't work as intended.
+		//Date d3 = new Date(d2);
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, -10000); // Create an old date
+		new SimpleDateFormat("yyyy-MM-dd"); // Sets the date format to this
+		
 		event.setEventID(2);
-		event.setDate(d3);
+		event.setDate(cal.getTime()); // Gets the date and sets the date.
 		event.setName("Event 2");
 
 		Location location = new Location(-100, 100);
@@ -139,20 +151,24 @@ class EventServiceImplTest {
 		eventStudents.add(student);
 		event.setStudents(eventStudents);
 
-		DataStorage.eventData.put(event.getEventID(), event); // Add another event
+		DataStorage.getEventData().put(event.getEventID(), event); // Add another event
 
 		List<Event> currentEvents = eventServiceImpl.getActiveEvents();
-		assertEquals(2, currentEvents.size());
+		assertEquals(1, currentEvents.size()); // Active Event should be only one!
 	}
 
 	@Test // This test case should pass, creates an old event and checks for it in the past events. #5
 	void testGetPastEvents_Good(){
 		int eventID = 1;
-		Date d1 = new Date();
-		int d2 = (d1.getDate() - 1000);  // These series of steps creates an old date.
-		Date d3 = new Date(d2);
+		//Date d1 = new Date();
+		//long d2 = (d1.getDate() - 1000);  // These series of steps creates an old date.
+		//Date d3 = new Date(d2);
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, -10000); // Create an old date
+		new SimpleDateFormat("yyyy-MM-dd"); // Sets the date format to this
 
-		DataStorage.eventData.get(eventID).setDate(d3);
+		DataStorage.getEventData().get(eventID).setDate(cal.getTime());
 		List<Event> pastEvents = eventServiceImpl.getPastEvents();
 		assertEquals(1, pastEvents.size());
 	}
@@ -166,7 +182,7 @@ class EventServiceImplTest {
 		long futureTime = currentTime + oneWeekOffset;
 		Date futureDate = new Date(futureTime);
 		
-		DataStorage.eventData.get(eventID).setDate(futureDate);
+		DataStorage.getEventData().get(eventID).setDate(futureDate);
 		List<Event> pastEvents = eventServiceImpl.getPastEvents();
 		assertEquals(0, pastEvents.size());
 	}
@@ -213,7 +229,7 @@ class EventServiceImplTest {
 		newEvent.setEventID(newEventID);
 		newEvent.setDate(new Date());
 		newEvent.setLocation(new Location(100, -100));
-		DataStorage.eventData.put(newEventID, newEvent);
+		DataStorage.getEventData().put(newEventID, newEvent);
 		
 		Student newStudent = generateTestStudent(2);
 		Event returnEvent = eventServiceImpl.addStudentToEvent(newStudent, newEventID);
