@@ -50,7 +50,8 @@ public class Event {
 	}
 
 	public void setDate(Date date) {
-		this.date = date;
+		Date copiedDate = new Date (date.getTime());
+		this.date = copiedDate;
 	}
 
 	public int getEventID() {
